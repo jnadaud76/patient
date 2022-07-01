@@ -1,7 +1,9 @@
-package com.mediscreen.patient.unit;
+package com.mediscreen.patient.integration;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,64 +11,70 @@ import com.mediscreen.patient.controller.PatientController;
 import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.service.IPatientService;
 
+import org.apache.http.entity.ContentType;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
-@WebMvcTest(controllers = PatientController.class)
-class PatientControllerTest {
+import javax.print.attribute.standard.Media;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class PatientControllerIT {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private IPatientService patientService;
-
     @Test
     void TestGetAllPatient() throws Exception {
-        when(patientService.getAllPatient()).thenReturn(new ArrayList<>());
-        mockMvc.perform(get("/patients"))
+       mockMvc.perform(get("/patients"))
                 .andExpect(status().isOk());
     }
 
-    @Test
-    void TestGetPatientById() throws Exception {
-       Patient patient = new Patient(1, "test", "test", LocalDateTime.now().minusYears(20), 'M', "12 rue du test", "555-555-555");
-       when(patientService.getPatientById(1)).thenReturn(Optional.of(patient));
-        mockMvc.perform(get("/patientbyid").queryParam("userId", "1"))
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 3, 4})
+    void TestGetPatientById(int ints) throws Exception {
+          mockMvc.perform(get("/patientbyid").queryParam("userId", String.valueOf(ints)))
                 .andExpect(status().isOk());
+
+
 
     }
 
     @Test
     void TestGetPatientByIdWithBadId() throws Exception {
-        when(patientService.getPatientById(1)).thenReturn(Optional.empty());
-        mockMvc.perform(get("/patientbyid").queryParam("userId", "1"))
+         mockMvc.perform(get("/patientbyid").queryParam("userId", "5"))
                 .andExpect(status().isNotFound());
 
     }
 
     @Test
     void TestGetPatientByFirstNameAndLastName() throws Exception {
-        Patient patient = new Patient(1, "test", "test", LocalDateTime.now().minusYears(20), 'M', "12 rue du test", "555-555-555");
-        when(patientService.getPatientByFirstNameAndLastName("test","test")).thenReturn(Optional.of(patient));
-        mockMvc.perform(get("/patient").queryParam("firstName", "test").queryParam("lastName", "test"))
-                .andExpect(status().isOk());
+       mockMvc.perform(get("/patient").queryParam("firstName", "John").queryParam("lastName", "Doe"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("@.firstName", is("John")))
+               .andExpect(jsonPath("@.lastName", is("Doe")));
+
 
     }
 
     @Test
     void TestGetPatientByBadFirstNameAndBadLastName() throws Exception {
-        when(patientService.getPatientByFirstNameAndLastName("test1","test1")).thenReturn(Optional.empty());
-        mockMvc.perform(get("/patient").queryParam("firstName", "test1").queryParam("lastName", "test1"))
+        mockMvc.perform(get("/patient").queryParam("firstName", "test").queryParam("lastName", "test"))
                 .andExpect(status().isNotFound());
 
     }
