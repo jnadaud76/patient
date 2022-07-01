@@ -49,6 +49,19 @@ public class Patient {
     @Column(name = "PHONE_NUMBER", nullable = false, length = 20)
     private String phoneNumber;
 
+    public Patient() {
+    }
+
+    public Patient(int id, String firstName, String lastName, LocalDateTime date, Character gender, String address, String phoneNumber) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.date = date;
+        this.gender = gender;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+    }
+
     public int getId() {
         return id;
     }
