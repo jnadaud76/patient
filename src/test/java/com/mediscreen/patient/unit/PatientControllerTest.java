@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @WebMvcTest(controllers = PatientController.class)
@@ -32,16 +33,21 @@ class PatientControllerTest {
 
     @Test
     void TestGetAllPatient() throws Exception {
-        when(patientService.getAllPatient()).thenReturn(new ArrayList<>());
-        mockMvc.perform(get("/patients"))
+        List<Patient> patients = new ArrayList<>();
+        Patient patient = new Patient(1, "test", "test", LocalDateTime.now().minusYears(20), 'M',
+                "12 rue du test", "555-555-555");
+        patients.add(patient);
+        when(patientService.getAllPatient()).thenReturn(patients);
+        mockMvc.perform(get("/api/patient/patients"))
                 .andExpect(status().isOk());
     }
 
     @Test
     void TestGetPatientById() throws Exception {
-       Patient patient = new Patient(1, "test", "test", LocalDateTime.now().minusYears(20), 'M', "12 rue du test", "555-555-555");
+        Patient patient = new Patient(1, "test", "test", LocalDateTime.now().minusYears(20), 'M',
+              "12 rue du test", "555-555-555");
        when(patientService.getPatientById(1)).thenReturn(Optional.of(patient));
-        mockMvc.perform(get("/patientbyid").queryParam("userId", "1"))
+        mockMvc.perform(get("/api/patient/patientbyid").queryParam("patientId", "1"))
                 .andExpect(status().isOk());
 
     }
@@ -49,16 +55,17 @@ class PatientControllerTest {
     @Test
     void TestGetPatientByIdWithBadId() throws Exception {
         when(patientService.getPatientById(1)).thenReturn(Optional.empty());
-        mockMvc.perform(get("/patientbyid").queryParam("userId", "1"))
+        mockMvc.perform(get("/api/patient/patientbyid").queryParam("patientId", "1"))
                 .andExpect(status().isNotFound());
 
     }
 
     @Test
     void TestGetPatientByFirstNameAndLastName() throws Exception {
-        Patient patient = new Patient(1, "test", "test", LocalDateTime.now().minusYears(20), 'M', "12 rue du test", "555-555-555");
+        Patient patient = new Patient(1, "test", "test", LocalDateTime.now().minusYears(20), 'M',
+                "12 rue du test", "555-555-555");
         when(patientService.getPatientByFirstNameAndLastName("test","test")).thenReturn(Optional.of(patient));
-        mockMvc.perform(get("/patient").queryParam("firstName", "test").queryParam("lastName", "test"))
+        mockMvc.perform(get("/api/patient/patient").queryParam("firstName", "test").queryParam("lastName", "test"))
                 .andExpect(status().isOk());
 
     }
@@ -66,7 +73,7 @@ class PatientControllerTest {
     @Test
     void TestGetPatientByBadFirstNameAndBadLastName() throws Exception {
         when(patientService.getPatientByFirstNameAndLastName("test1","test1")).thenReturn(Optional.empty());
-        mockMvc.perform(get("/patient").queryParam("firstName", "test1").queryParam("lastName", "test1"))
+        mockMvc.perform(get("/api/patient/patient").queryParam("firstName", "test1").queryParam("lastName", "test1"))
                 .andExpect(status().isNotFound());
 
     }

@@ -22,8 +22,8 @@ public class PatientService implements IPatientService {
         return patientRepository.findAll();
     }
 
-    public Optional<Patient> getPatientById(Integer userId) {
-        return patientRepository.findById(userId);
+    public Optional<Patient> getPatientById(Integer patientId) {
+        return patientRepository.findById(patientId);
     }
 
     public Optional<Patient> getPatientByFirstNameAndLastName(String firstName, String lastName) {

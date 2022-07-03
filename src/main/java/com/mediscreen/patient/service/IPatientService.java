@@ -9,7 +9,7 @@ public interface IPatientService {
 
     List<Patient> getAllPatient();
 
-    Optional<Patient> getPatientById(Integer userId);
+    Optional<Patient> getPatientById(Integer patientId);
 
     Optional<Patient> getPatientByFirstNameAndLastName(String firstName, String lastName);
 }

@@ -41,40 +41,37 @@ class PatientControllerIT {
 
     @Test
     void TestGetAllPatient() throws Exception {
-       mockMvc.perform(get("/patients"))
+       mockMvc.perform(get("/api/patient/patients"))
                 .andExpect(status().isOk());
     }
 
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3, 4})
     void TestGetPatientById(int ints) throws Exception {
-          mockMvc.perform(get("/patientbyid").queryParam("userId", String.valueOf(ints)))
+          mockMvc.perform(get("/api/patient/patientbyid").queryParam("patientId", String.valueOf(ints)))
                 .andExpect(status().isOk());
-
-
 
     }
 
     @Test
     void TestGetPatientByIdWithBadId() throws Exception {
-         mockMvc.perform(get("/patientbyid").queryParam("userId", "5"))
+         mockMvc.perform(get("/api/patient/patientbyid").queryParam("patientId", "5"))
                 .andExpect(status().isNotFound());
 
     }
 
     @Test
     void TestGetPatientByFirstNameAndLastName() throws Exception {
-       mockMvc.perform(get("/patient").queryParam("firstName", "John").queryParam("lastName", "Doe"))
+       mockMvc.perform(get("/api/patient/patient").queryParam("firstName", "John").queryParam("lastName", "Doe"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("@.firstName", is("John")))
                .andExpect(jsonPath("@.lastName", is("Doe")));
-
 
     }
 
     @Test
     void TestGetPatientByBadFirstNameAndBadLastName() throws Exception {
-        mockMvc.perform(get("/patient").queryParam("firstName", "test").queryParam("lastName", "test"))
+        mockMvc.perform(get("/api/patient/patient").queryParam("firstName", "test").queryParam("lastName", "test"))
                 .andExpect(status().isNotFound());
 
     }
