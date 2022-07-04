@@ -12,7 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -84,8 +84,8 @@ public class PatientController {
     }
 
     @ApiOperation(value = "Update one patient.")
-    @PutMapping("/patient/update")
-    public ResponseEntity<PatientFullDto> updatePatient (@RequestBody @Valid PatientFullDto patientUpdateDto) {
+    @PostMapping(value="/patientupdate")
+    public ResponseEntity<PatientFullDto> updatePatient (@Valid @RequestBody PatientFullDto patientUpdateDto) {
         Patient patient = patientService.updatePatient(OBJECT_MAPPER.convertValue(patientUpdateDto, Patient.class));
         if(patient!=null) {
             LOGGER.info("Patient successfully update - code : {}", HttpStatus.OK);

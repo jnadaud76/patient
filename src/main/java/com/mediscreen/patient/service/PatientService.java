@@ -45,7 +45,8 @@ public class PatientService implements IPatientService {
             patient.setGender(patientUpdate.getGender());
             patient.setAddress(patientUpdate.getAddress());
             patient.setPhoneNumber(patientUpdate.getPhoneNumber());
-            return patientRepository.save(patient);
+            patientRepository.save(patient);
+            return patient;
         } else {
             return null;
         }
