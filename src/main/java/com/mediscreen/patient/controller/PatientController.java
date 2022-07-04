@@ -1,5 +1,8 @@
 package com.mediscreen.patient.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mediscreen.patient.dto.PatientFullDto;
 import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.service.IPatientService;
 
@@ -9,12 +12,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
+
+import javax.validation.Valid;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +31,8 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping(value = "api/patient")
 @RestController
 public class PatientController {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatientController.class);
 
@@ -72,5 +81,18 @@ public class PatientController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
+    }
+
+    @ApiOperation(value = "Update one patient.")
+    @PutMapping("/patient/update")
+    public ResponseEntity<PatientFullDto> updatePatient (@RequestBody @Valid PatientFullDto patientUpdateDto) {
+        Patient patient = patientService.updatePatient(OBJECT_MAPPER.convertValue(patientUpdateDto, Patient.class));
+        if(patient!=null) {
+            LOGGER.info("Patient successfully update - code : {}", HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK).body(patientUpdateDto);
+        } else {
+            LOGGER.error("Patient can't be update because don't exist : {}", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 }

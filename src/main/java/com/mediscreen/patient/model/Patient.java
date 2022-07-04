@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 
 @Entity
@@ -33,12 +34,12 @@ public class Patient {
     private String lastName;
 
     @Past
-    @NotBlank(message = "Date of birth is mandatory")
-    @Column(name = "DATE_OF_BIRTH", nullable = false)
-    private LocalDateTime date;
+    @NotNull(message = "Date of birth is mandatory")
+    @Column(name = "DATE_OF_BIRTH")
+    private LocalDateTime dateOfBirth;
 
-    @NotBlank(message = "Gender is mandatory")
-    @Column(name = "GENDER", nullable = false, length = 1)
+    @NotNull(message = "Gender is mandatory")
+    @Column(name = "GENDER", length = 1)
     private Character gender;
 
     @NotBlank(message = "Address is mandatory")
@@ -56,7 +57,7 @@ public class Patient {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.date = date;
+        this.dateOfBirth = date;
         this.gender = gender;
         this.address = address;
         this.phoneNumber = phoneNumber;
@@ -86,12 +87,12 @@ public class Patient {
         this.lastName = lastName;
     }
 
-    public LocalDateTime getDate() {
-        return date;
+    public LocalDateTime getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+    public void setDateOfBirth(LocalDateTime date) {
+        this.dateOfBirth = date;
     }
 
     public Character getGender() {

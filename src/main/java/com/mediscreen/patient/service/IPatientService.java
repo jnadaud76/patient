@@ -12,4 +12,8 @@ public interface IPatientService {
     Optional<Patient> getPatientById(Integer patientId);
 
     Optional<Patient> getPatientByFirstNameAndLastName(String firstName, String lastName);
+
+    Patient savePatient(Patient patient);
+
+    Patient updatePatient (Patient patientUpdate);
 }
