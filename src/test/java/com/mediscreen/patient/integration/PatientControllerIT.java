@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.is;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -11,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mediscreen.patient.dto.PatientFullDto;
-import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.service.IPatientService;
 
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -38,6 +38,9 @@ class PatientControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private IPatientService patientService;
 
     @Test
     void TestGetAllPatient() throws Exception {
@@ -55,7 +58,7 @@ class PatientControllerIT {
 
     @Test
     void TestGetPatientByIdWithBadId() throws Exception {
-         mockMvc.perform(get("/api/patient/patientbyid").queryParam("patientId", "5"))
+         mockMvc.perform(get("/api/patient/patientbyid").queryParam("patientId", "150"))
                 .andExpect(status().isNotFound());
 
     }
@@ -78,10 +81,10 @@ class PatientControllerIT {
 
     @Test
     void TestUpdatePatient() throws Exception {
-        PatientFullDto patientUpdateDto = new PatientFullDto(2, "test2", "test2", LocalDateTime.now().minusYears(30), 'F',
+        PatientFullDto patientUpdateDto = new PatientFullDto(2, "test2", "test2", LocalDate.now().minusYears(30), 'F',
                 "77 rue du test", "550-550-550");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientUpdateDto);
-        mockMvc.perform(put("/api/patient/patient/update")
+        mockMvc.perform(put("/api/patient/patientupdate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isOk());
@@ -91,14 +94,46 @@ class PatientControllerIT {
 
     @Test
     void TestUpdatePatientWithBadId() throws Exception {
-        PatientFullDto patientUpdateDto = new PatientFullDto(28, "test2", "test2", LocalDateTime.now().minusYears(30), 'F',
+        PatientFullDto patientUpdateDto = new PatientFullDto(28, "test2", "test2", LocalDate.now().minusYears(30), 'F',
                 "77 rue du test", "550-550-550");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientUpdateDto);
-        mockMvc.perform(put("/api/patient/patient/update")
+        mockMvc.perform(put("/api/patient/patientupdate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isBadRequest());
 
 
+    }
+
+    @Test
+    void TestCreatePatient() throws Exception {
+        PatientFullDto patientCreateDto = new PatientFullDto();
+        patientCreateDto.setFirstName("test2");
+        patientCreateDto.setLastName("test2");
+        patientCreateDto.setDateOfBirth(LocalDate.now().minusYears(20));
+        patientCreateDto.setGender('M');
+        patientCreateDto.setAddress("13 rue du test");
+        patientCreateDto.setPhoneNumber("666-666-666");
+        String patientAsString = OBJECT_MAPPER.writeValueAsString(patientCreateDto);
+        mockMvc.perform(post("/api/patient/addpatient")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patientAsString))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void TestCreatePatientWhichAlreadyExist() throws Exception {
+        PatientFullDto patientCreateDto = new PatientFullDto();
+        patientCreateDto.setFirstName("John");
+        patientCreateDto.setLastName("Doe");
+        patientCreateDto.setDateOfBirth(LocalDate.now().minusYears(20));
+        patientCreateDto.setGender('M');
+        patientCreateDto.setAddress("13 rue du test");
+        patientCreateDto.setPhoneNumber("666-666-666");
+        String patientAsString = OBJECT_MAPPER.writeValueAsString(patientCreateDto);
+        mockMvc.perform(post("/api/patient/addpatient")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(patientAsString))
+                .andExpect(status().isBadRequest());
     }
 }

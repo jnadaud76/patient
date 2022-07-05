@@ -2,7 +2,7 @@ package com.mediscreen.patient.model;
 
 import org.hibernate.validator.constraints.Length;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,7 +36,7 @@ public class Patient {
     @Past
     @NotNull(message = "Date of birth is mandatory")
     @Column(name = "DATE_OF_BIRTH")
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @NotNull(message = "Gender is mandatory")
     @Column(name = "GENDER", length = 1)
@@ -53,7 +53,7 @@ public class Patient {
     public Patient() {
     }
 
-    public Patient(int id, String firstName, String lastName, LocalDateTime date, Character gender, String address, String phoneNumber) {
+    public Patient(int id, String firstName, String lastName, LocalDate date, Character gender, String address, String phoneNumber) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -87,11 +87,11 @@ public class Patient {
         this.lastName = lastName;
     }
 
-    public LocalDateTime getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDateTime date) {
+    public void setDateOfBirth(LocalDate date) {
         this.dateOfBirth = date;
     }
 
@@ -118,4 +118,5 @@ public class Patient {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
 }

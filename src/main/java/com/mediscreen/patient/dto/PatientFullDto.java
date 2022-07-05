@@ -2,7 +2,7 @@ package com.mediscreen.patient.dto;
 
 import org.hibernate.validator.constraints.Length;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -22,7 +22,7 @@ public class PatientFullDto {
 
     @Past
     @NotNull(message = "Date of birth is mandatory")
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @NotNull(message = "Gender is mandatory")
     private Character gender;
@@ -38,7 +38,7 @@ public class PatientFullDto {
     public PatientFullDto() {
     }
 
-    public PatientFullDto(int id, String firstName, String lastName, LocalDateTime dateOfBirth, Character gender, String address, String phoneNumber) {
+    public PatientFullDto(int id, String firstName, String lastName, LocalDate dateOfBirth, Character gender, String address, String phoneNumber) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -72,11 +72,11 @@ public class PatientFullDto {
         this.lastName = lastName;
     }
 
-    public LocalDateTime getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDateTime dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 

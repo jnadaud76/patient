@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -84,7 +85,7 @@ public class PatientController {
     }
 
     @ApiOperation(value = "Update one patient.")
-    @PostMapping(value="/patientupdate")
+    @PutMapping(value="/patientupdate")
     public ResponseEntity<PatientFullDto> updatePatient (@Valid @RequestBody PatientFullDto patientUpdateDto) {
         Patient patient = patientService.updatePatient(OBJECT_MAPPER.convertValue(patientUpdateDto, Patient.class));
         if(patient!=null) {
@@ -92,6 +93,20 @@ public class PatientController {
             return ResponseEntity.status(HttpStatus.OK).body(patientUpdateDto);
         } else {
             LOGGER.error("Patient can't be update because don't exist : {}", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @ApiOperation(value = "Create one patient.")
+    @PostMapping(value="/addpatient")
+    public ResponseEntity<PatientFullDto> createPatient (@Valid @RequestBody PatientFullDto patientFullDto) {
+       if(!patientService.getPatientByFirstNameAndLastName(patientFullDto.getFirstName(),
+                patientFullDto.getLastName()).isPresent()) {
+            patientService.savePatient(OBJECT_MAPPER.convertValue(patientFullDto, Patient.class));
+            LOGGER.info("Patient successfully create - code : {}", HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(patientFullDto);
+        } else {
+            LOGGER.error("Patient can't be create, already exist - code : {}", HttpStatus.BAD_REQUEST);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
