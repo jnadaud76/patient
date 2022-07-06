@@ -28,7 +28,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @Api("API for patient CRUD operations.")
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("*")
 @RequestMapping(value = "api/patient")
 @RestController
 public class PatientController {
@@ -58,7 +58,7 @@ public class PatientController {
     }
 
     @ApiOperation(value = "Retrieve one patient by id.")
-    @GetMapping("/patientbyid")
+    @GetMapping("/patient/id")
     public ResponseEntity<Patient> getPatientById(@RequestParam Integer patientId) {
         Optional<Patient> patientOptional = patientService.getPatientById(patientId);
         if (patientOptional.isPresent()) {
@@ -85,7 +85,7 @@ public class PatientController {
     }
 
     @ApiOperation(value = "Update one patient.")
-    @PutMapping(value="/patientupdate")
+    @PutMapping(value="/patient/update")
     public ResponseEntity<PatientFullDto> updatePatient (@Valid @RequestBody PatientFullDto patientUpdateDto) {
         Patient patient = patientService.updatePatient(OBJECT_MAPPER.convertValue(patientUpdateDto, Patient.class));
         if(patient!=null) {
@@ -98,7 +98,7 @@ public class PatientController {
     }
 
     @ApiOperation(value = "Create one patient.")
-    @PostMapping(value="/addpatient")
+    @PostMapping(value="/patient/add")
     public ResponseEntity<PatientFullDto> createPatient (@Valid @RequestBody PatientFullDto patientFullDto) {
        if(!patientService.getPatientByFirstNameAndLastName(patientFullDto.getFirstName(),
                 patientFullDto.getLastName()).isPresent()) {

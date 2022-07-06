@@ -54,7 +54,7 @@ class PatientControllerTest {
         Patient patient = new Patient(1, "test", "test", LocalDate.now().minusYears(20), 'M',
               "12 rue du test", "555-555-555");
        when(patientService.getPatientById(1)).thenReturn(Optional.of(patient));
-        mockMvc.perform(get("/api/patient/patientbyid").queryParam("patientId", "1"))
+        mockMvc.perform(get("/api/patient/patient/id").queryParam("patientId", "1"))
                 .andExpect(status().isOk());
 
     }
@@ -62,7 +62,7 @@ class PatientControllerTest {
     @Test
     void TestGetPatientByIdWithBadId() throws Exception {
         when(patientService.getPatientById(1)).thenReturn(Optional.empty());
-        mockMvc.perform(get("/api/patient/patientbyid").queryParam("patientId", "1"))
+        mockMvc.perform(get("/api/patient/patient/id").queryParam("patientId", "1"))
                 .andExpect(status().isNotFound());
 
     }
@@ -94,7 +94,7 @@ class PatientControllerTest {
        Patient patientToUpdate = OBJECT_MAPPER.convertValue(patientUpdateDto, Patient.class);
        String patientAsString = OBJECT_MAPPER.writeValueAsString(patientUpdateDto);
        when(patientService.updatePatient(patientToUpdate)).thenReturn(patientUpdated);
-       mockMvc.perform(put("/api/patient/patientupdate")
+       mockMvc.perform(put("/api/patient/patient/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isOk());
@@ -108,7 +108,7 @@ class PatientControllerTest {
                 "13 rue du test", "666-666-666");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientUpdateDto);
         when(patientService.updatePatient(patientUpdate)).thenReturn(null);
-        mockMvc.perform(put("/api/patient/patientupdate")
+        mockMvc.perform(put("/api/patient/patient/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isBadRequest());
@@ -129,7 +129,7 @@ class PatientControllerTest {
                 "13 rue du test", "666-666-666");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientCreateDto);
         when(patientService.savePatient(patient)).thenReturn(patient);
-        mockMvc.perform(post("/api/patient/addpatient")
+        mockMvc.perform(post("/api/patient/patient/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isCreated());
@@ -148,7 +148,7 @@ class PatientControllerTest {
                 "13 rue du test", "666-666-666");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientCreateDto);
         when(patientService.getPatientByFirstNameAndLastName("test2","test2")).thenReturn(Optional.of(patient));
-        mockMvc.perform(post("/api/patient/addpatient")
+        mockMvc.perform(post("/api/patient/patient/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isBadRequest());

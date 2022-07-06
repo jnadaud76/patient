@@ -2,7 +2,6 @@ package com.mediscreen.patient.integration;
 
 import static org.hamcrest.CoreMatchers.is;
 
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -51,14 +50,14 @@ class PatientControllerIT {
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3, 4})
     void TestGetPatientById(int ints) throws Exception {
-          mockMvc.perform(get("/api/patient/patientbyid").queryParam("patientId", String.valueOf(ints)))
+          mockMvc.perform(get("/api/patient/patient/id").queryParam("patientId", String.valueOf(ints)))
                 .andExpect(status().isOk());
 
     }
 
     @Test
     void TestGetPatientByIdWithBadId() throws Exception {
-         mockMvc.perform(get("/api/patient/patientbyid").queryParam("patientId", "150"))
+         mockMvc.perform(get("/api/patient/patient/id").queryParam("patientId", "150"))
                 .andExpect(status().isNotFound());
 
     }
@@ -84,7 +83,7 @@ class PatientControllerIT {
         PatientFullDto patientUpdateDto = new PatientFullDto(2, "test2", "test2", LocalDate.now().minusYears(30), 'F',
                 "77 rue du test", "550-550-550");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientUpdateDto);
-        mockMvc.perform(put("/api/patient/patientupdate")
+        mockMvc.perform(put("/api/patient/patient/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isOk());
@@ -97,7 +96,7 @@ class PatientControllerIT {
         PatientFullDto patientUpdateDto = new PatientFullDto(28, "test2", "test2", LocalDate.now().minusYears(30), 'F',
                 "77 rue du test", "550-550-550");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientUpdateDto);
-        mockMvc.perform(put("/api/patient/patientupdate")
+        mockMvc.perform(put("/api/patient/patient/update")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isBadRequest());
@@ -115,7 +114,7 @@ class PatientControllerIT {
         patientCreateDto.setAddress("13 rue du test");
         patientCreateDto.setPhoneNumber("666-666-666");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientCreateDto);
-        mockMvc.perform(post("/api/patient/addpatient")
+        mockMvc.perform(post("/api/patient/patient/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isCreated());
@@ -131,7 +130,7 @@ class PatientControllerIT {
         patientCreateDto.setAddress("13 rue du test");
         patientCreateDto.setPhoneNumber("666-666-666");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientCreateDto);
-        mockMvc.perform(post("/api/patient/addpatient")
+        mockMvc.perform(post("/api/patient/patient/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isBadRequest());
