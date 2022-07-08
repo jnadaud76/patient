@@ -2,6 +2,7 @@ package com.mediscreen.patient.integration;
 
 import static org.hamcrest.CoreMatchers.is;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -11,7 +12,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mediscreen.patient.dto.PatientFullDto;
+import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.service.IPatientService;
+import com.mediscreen.patient.util.IConversion;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -40,6 +43,9 @@ class PatientControllerIT {
 
     @Autowired
     private IPatientService patientService;
+
+    @Autowired
+    private IConversion conversion;
 
     @Test
     void TestGetAllPatient() throws Exception {
@@ -105,23 +111,23 @@ class PatientControllerIT {
     }
 
     @Test
-    void TestCreatePatient() throws Exception {
+    void TestCreatePatientFromJson() throws Exception {
         PatientFullDto patientCreateDto = new PatientFullDto();
-        patientCreateDto.setFirstName("test2");
-        patientCreateDto.setLastName("test2");
+        patientCreateDto.setFirstName("test22");
+        patientCreateDto.setLastName("test22");
         patientCreateDto.setDateOfBirth(LocalDate.now().minusYears(20));
         patientCreateDto.setGender('M');
         patientCreateDto.setAddress("13 rue du test");
         patientCreateDto.setPhoneNumber("666-666-666");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientCreateDto);
-        mockMvc.perform(post("/api/patient/patient/add")
+        mockMvc.perform(post("/api/patient/patient/add/json")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isCreated());
     }
 
     @Test
-    void TestCreatePatientWhichAlreadyExist() throws Exception {
+    void TestCreatePatientFromJsonWhichAlreadyExist() throws Exception {
         PatientFullDto patientCreateDto = new PatientFullDto();
         patientCreateDto.setFirstName("John");
         patientCreateDto.setLastName("Doe");
@@ -130,9 +136,35 @@ class PatientControllerIT {
         patientCreateDto.setAddress("13 rue du test");
         patientCreateDto.setPhoneNumber("666-666-666");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientCreateDto);
-        mockMvc.perform(post("/api/patient/patient/add")
+        mockMvc.perform(post("/api/patient/patient/add/json")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void TestCreatePatient() throws Exception {
+        mockMvc.perform(post("/api/patient/patient/add")
+                        .queryParam("family", "test12")
+                        .queryParam("given", "test12")
+                        .queryParam("dob", "1945-03-01")
+                        .queryParam("sex", "M")
+                        .queryParam("address", "13 rue du test")
+                        .queryParam("phone", "666-666-666")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void TestCreatePatientWhichAlreadyExist() throws Exception {
+        mockMvc.perform(post("/api/patient/patient/add")
+                        .queryParam("family", "Doe")
+                        .queryParam("given", "John")
+                        .queryParam("dob", "1945-03-01")
+                        .queryParam("sex", "M")
+                        .queryParam("address", "13 rue du test")
+                        .queryParam("phone", "666-666-666")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                 .andExpect(status().isBadRequest());
     }
 }

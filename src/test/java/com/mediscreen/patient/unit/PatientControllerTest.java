@@ -9,10 +9,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mediscreen.patient.controller.PatientController;
+import com.mediscreen.patient.dto.PatientFromStringDto;
 import com.mediscreen.patient.dto.PatientFullDto;
 import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.repository.PatientRepository;
 import com.mediscreen.patient.service.IPatientService;
+import com.mediscreen.patient.util.IConversion;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,9 @@ class PatientControllerTest {
 
     @MockBean
     private IPatientService patientService;
+
+    @MockBean
+    private IConversion conversion;
 
     @Test
     void TestGetAllPatient() throws Exception {
@@ -117,7 +122,7 @@ class PatientControllerTest {
     }
 
     @Test
-    void TestCreatePatient() throws Exception {
+    void TestCreatePatientFromJson() throws Exception {
         PatientFullDto patientCreateDto = new PatientFullDto();
         patientCreateDto.setFirstName("test2");
         patientCreateDto.setLastName("test2");
@@ -129,14 +134,14 @@ class PatientControllerTest {
                 "13 rue du test", "666-666-666");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientCreateDto);
         when(patientService.savePatient(patient)).thenReturn(patient);
-        mockMvc.perform(post("/api/patient/patient/add")
+        mockMvc.perform(post("/api/patient/patient/add/json")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isCreated());
     }
 
     @Test
-    void TestCreatePatientWhichAlreadyExist() throws Exception {
+    void TestCreatePatientFromJsonWhichAlreadyExist() throws Exception {
         PatientFullDto patientCreateDto = new PatientFullDto();
         patientCreateDto.setFirstName("test2");
         patientCreateDto.setLastName("test2");
@@ -148,9 +153,42 @@ class PatientControllerTest {
                 "13 rue du test", "666-666-666");
         String patientAsString = OBJECT_MAPPER.writeValueAsString(patientCreateDto);
         when(patientService.getPatientByFirstNameAndLastName("test2","test2")).thenReturn(Optional.of(patient));
-        mockMvc.perform(post("/api/patient/patient/add")
+        mockMvc.perform(post("/api/patient/patient/add/json")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patientAsString))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void TestCreatePatient() throws Exception {
+        Patient patient = new Patient(28, "test2", "test2", LocalDate.parse("1945-03-01"), 'M',
+                "13 rue du test", "666-666-666");
+        when(patientService.savePatient(patient)).thenReturn(patient);
+        mockMvc.perform(post("/api/patient/patient/add")
+                        .queryParam("family", "test2")
+                        .queryParam("given", "test2")
+                        .queryParam("dob", "1945-03-01")
+                        .queryParam("sex", "M")
+                        .queryParam("address", "13 rue du test")
+                        .queryParam("phone", "666-666-666")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                        .andExpect(status().isCreated());
+    }
+
+    @Test
+    void TestCreatePatientWhichAlreadyExist() throws Exception {
+        Patient patient = new Patient(28, "test2", "test2", LocalDate.parse("1945-03-01"), 'M',
+                "13 rue du test", "666-666-666");
+        when(patientService.getPatientByFirstNameAndLastName("test2","test2")).thenReturn(Optional.of(patient));
+        mockMvc.perform(post("/api/patient/patient/add")
+                        .queryParam("family", "test2")
+                        .queryParam("given", "test2")
+                        .queryParam("dob", "1945-03-01")
+                        .queryParam("sex", "M")
+                        .queryParam("address", "13 rue du test")
+                        .queryParam("phone", "666-666-666")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
+                .andExpect(status().isBadRequest());
+    }
+
 }

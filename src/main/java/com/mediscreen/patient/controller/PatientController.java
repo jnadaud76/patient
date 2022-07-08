@@ -2,13 +2,16 @@ package com.mediscreen.patient.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.mediscreen.patient.dto.PatientFromStringDto;
 import com.mediscreen.patient.dto.PatientFullDto;
 import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.service.IPatientService;
+import com.mediscreen.patient.util.IConversion;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,10 +40,13 @@ public class PatientController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatientController.class);
 
+    private final IConversion conversion;
+
     private final IPatientService patientService;
 
-    public PatientController(IPatientService patientService) {
+    public PatientController(IPatientService patientService, IConversion conversion) {
         this.patientService = patientService;
+        this.conversion=conversion;
     }
 
     @ApiOperation(value = "Retrieve all patient.")
@@ -97,14 +103,29 @@ public class PatientController {
         }
     }
 
-    @ApiOperation(value = "Create one patient.")
-    @PostMapping(value="/patient/add")
-    public ResponseEntity<PatientFullDto> createPatient (@Valid @RequestBody PatientFullDto patientFullDto) {
+    @ApiOperation(value = "Create one patient from JSON.")
+    @PostMapping(value="/patient/add/json")
+    public ResponseEntity<PatientFullDto> createPatientFromJson (@Valid @RequestBody PatientFullDto patientFullDto) {
        if(!patientService.getPatientByFirstNameAndLastName(patientFullDto.getFirstName(),
                 patientFullDto.getLastName()).isPresent()) {
             patientService.savePatient(OBJECT_MAPPER.convertValue(patientFullDto, Patient.class));
             LOGGER.info("Patient successfully create - code : {}", HttpStatus.CREATED);
             return ResponseEntity.status(HttpStatus.CREATED).body(patientFullDto);
+        } else {
+            LOGGER.error("Patient can't be create, already exist - code : {}", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @ApiOperation(value = "Create one patient from URLENCODED_VALUE.")
+    @PostMapping(value="/patient/add", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PatientFromStringDto> createPatient (@Valid PatientFromStringDto patientFromStringDto) {
+        if(!patientService.getPatientByFirstNameAndLastName(patientFromStringDto.getGiven(),
+                patientFromStringDto.getFamily()).isPresent()) {
+            patientService.savePatient(conversion.patientFromStringDtoToPatient(patientFromStringDto));
+            LOGGER.info("Patient successfully create - code : {}", HttpStatus.CREATED);
+            return ResponseEntity.status(HttpStatus.CREATED).body(patientFromStringDto);
         } else {
             LOGGER.error("Patient can't be create, already exist - code : {}", HttpStatus.BAD_REQUEST);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
